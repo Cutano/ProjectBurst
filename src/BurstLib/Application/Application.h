@@ -34,6 +34,8 @@ namespace Burst
         bool m_ShowPreviewWindow{true};
         bool m_ShowSettingWindow{true};
 
+        unsigned int m_PreviewTexID;
+
         void DrawDockSpace();
         void DrawPreviewWindow();
         void DrawSettingWindow();

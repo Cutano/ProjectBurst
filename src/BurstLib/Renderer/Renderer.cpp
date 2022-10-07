@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Scene/Scene.h"
+#include "Image.h"
 
 namespace Burst
 {
@@ -15,7 +16,9 @@ namespace Burst
 
     void Renderer::Render(int width, int height, Scene &scene, std::function<void(float, void*)> callback)
     {
+        Image img(width, height);
 
+        callback(0, img.GetRawData());
     }
 
 } // namespace Burst
