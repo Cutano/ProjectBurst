@@ -1,5 +1,7 @@
 set_allowedarchs("x64")
+
 add_rules("mode.debug", "mode.release")
+add_rules("plugin.vsxmake.autoupdate")
 
 add_requires("imgui v1.88-docking", {configs = {glfw_opengl3 = true}})
 add_requires("opengl", "glm", "glfw", "glad", "stb", "spdlog")
@@ -14,7 +16,7 @@ target("BurstLib")
 
 target("DemoApp")
     set_kind("binary")
-    set_languages("cxx20") 
+    set_languages("cxx20")
     add_deps("BurstLib")
     add_includedirs("src/BurstLib/include")
     add_files("src/DemoApp/main.cpp")
