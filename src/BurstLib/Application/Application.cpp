@@ -5,6 +5,7 @@
 #include <imgui_impl_opengl3.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -32,12 +33,16 @@ namespace Burst
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        m_Window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+        m_Window = glfwCreateWindow(1280, 720, "Burst Renderer", NULL, NULL);
 
         glfwMakeContextCurrent(m_Window);
         glfwSwapInterval(1); // Enable vsync
 
-        gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            spdlog::error("Failed init opengl!");
+        }
+        
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
