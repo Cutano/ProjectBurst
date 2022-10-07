@@ -13,7 +13,7 @@ namespace Burst
 
     }
 
-    void Renderer::Render(int width, int height, Scene &scene)
+    void Renderer::Render(int width, int height, Scene &scene, std::function<void(float, void*)> callback)
     {
 
     }

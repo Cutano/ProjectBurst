@@ -161,7 +161,7 @@ namespace Burst
             {
                 if (ImGui::MenuItem("Generate", "Ctrl+G"))
                 {
-                    
+                    m_Renderer->Render(m_ImageWidth, m_ImageHeight, *m_Scene, [this](float prog, void* img) { RenderCallback(prog, img); });
                 }
 
                 if (ImGui::MenuItem("Save", "Ctrl+S"))
@@ -201,5 +201,10 @@ namespace Burst
         ImGui::DragInt("Image Width", &m_ImageWidth, 1.0f, 100, 1e5);
         ImGui::DragInt("Image Height", &m_ImageHeight, 1.0f, 100, 1e5);
         ImGui::End();
+    }
+
+    void Application::RenderCallback(float progressUNORM, void* image)
+    {
+
     }
 }

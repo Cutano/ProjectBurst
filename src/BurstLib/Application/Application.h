@@ -37,5 +37,7 @@ namespace Burst
         void DrawDockSpace();
         void DrawPreviewWindow();
         void DrawSettingWindow();
+
+        void RenderCallback(float progressUNORM, void* image);
     };
 }

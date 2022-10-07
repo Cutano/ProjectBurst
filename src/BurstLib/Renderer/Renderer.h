@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "Common.h"
 
 namespace Burst
@@ -14,6 +16,6 @@ namespace Burst
         Renderer();
         ~Renderer();
 
-        void Render(int width, int height, Scene& scene);
+        void Render(int width, int height, Scene& scene, std::function<void(float, void*)> callback);
     };
 } // namespace Burst
