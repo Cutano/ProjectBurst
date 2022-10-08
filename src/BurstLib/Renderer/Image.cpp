@@ -12,7 +12,7 @@ namespace Burst
     Image::Image(int width, int height) : m_Width(width), m_Height(height)
     {
         m_Data = new Pixel[width * height];
-        memset(m_Data, 0xFF, width * height * 3);
+        memset(m_Data, 0x88, width * height * 3);
     }
 
     Image::~Image()
@@ -31,7 +31,7 @@ namespace Burst
         return m_Data;
     }
 
-    bool Image::SaveAsPNG(std::string path)
+    bool Image::SaveAsPNG(const std::string& path) const
     {
         return stbi_write_png(path.c_str(), m_Width, m_Height, 3, m_Data, m_Width * 3);
     }

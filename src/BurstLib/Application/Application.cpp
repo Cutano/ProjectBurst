@@ -1,5 +1,6 @@
 #include "Application.h"
 
+#include <BS_thread_pool.hpp>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -8,6 +9,28 @@
 #include <spdlog/spdlog.h>
 
 #include "Renderer/Renderer.h"
+
+GLenum glCheckError_(const char *file, int line)
+{
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR)
+    {
+        std::string error;
+        switch (errorCode)
+        {
+        case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+        case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+        case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+        case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+        case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+        case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        }
+        std::cout << error << " | " << file << " (" << line << ")" << std::endl;
+    }
+    return errorCode;
+}
+#define glCheckError() glCheckError_(__FILE__, __LINE__) 
 
 static void glfw_error_callback(int error, const char *description)
 {
@@ -28,7 +51,7 @@ namespace Burst
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        m_Window = glfwCreateWindow(1280, 720, "Burst Renderer", NULL, NULL);
+        m_Window = glfwCreateWindow(1440, 900, "Burst Renderer", NULL, NULL);
 
         glfwMakeContextCurrent(m_Window);
         glfwSwapInterval(1); // Enable vsync
@@ -70,6 +93,15 @@ namespace Burst
         m_Renderer = std::make_shared<Renderer>();
 
         glGenTextures(1, &m_PreviewTexID);
+
+        glBindTexture(GL_TEXTURE_2D, m_PreviewTexID);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     Application::~Application()
@@ -92,7 +124,23 @@ namespace Burst
             // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
             // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
             // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-            glfwPollEvents();
+            glfwWaitEvents();
+
+            if (m_IsGenerating)
+            {
+                glBindTexture(GL_TEXTURE_2D, m_PreviewTexID);
+        
+                glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ImageWidth, m_ImageHeight, GL_RGB, GL_UNSIGNED_BYTE, m_ImageData);
+                // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ImageWidth, m_ImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, m_ImageData);
+                glCheckError();
+            
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
+
+            if (m_Progress >= 0.999999999999f)
+            {
+                m_IsGenerating = false;
+            }
 
             // Start the Dear ImGui frame
             ImGui_ImplOpenGL3_NewFrame();
@@ -165,12 +213,23 @@ namespace Burst
                 {
                     m_ImageWidth = m_ImageSettingWidth;
                     m_ImageHeight = m_ImageSettingHeight;
-                    m_Renderer->Render(m_ImageSettingWidth, m_ImageSettingHeight, *m_Scene, [this](float prog, Pixel* img) { RenderCallback(prog, img); });
+                    m_Progress = 0;
+                    m_IsGenerating = true;
+
+                    glBindTexture(GL_TEXTURE_2D, m_PreviewTexID);
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+                    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ImageWidth, m_ImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+                    glCheckError();
+                    glBindTexture(GL_TEXTURE_2D, 0);
+                    
+                    auto future = m_Renderer->Render(m_ImageSettingWidth, m_ImageSettingHeight, m_Scene, [this](float prog, Pixel* img) { RenderCallback(prog, img); });
                 }
 
                 if (ImGui::MenuItem("Save", "Ctrl+S"))
                 {
-                    
+                    m_Renderer->SaveImage("./img.png");
                 }
                 
                 ImGui::EndMenu();
@@ -184,6 +243,7 @@ namespace Burst
                 ImGui::EndMenu();
             }
 
+            ImGui::ProgressBar(m_Progress);
             ImGui::EndMenuBar();
         }
 
@@ -192,9 +252,9 @@ namespace Burst
 
     void Application::DrawPreviewWindow()
     {
-        ImGuiWindowFlags windowFlags = 0;
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_HorizontalScrollbar;
         ImGui::Begin("Preview", &m_ShowPreviewWindow, windowFlags);
-
+        
         ImGui::Image((void*)(intptr_t)m_PreviewTexID, ImVec2(m_ImageWidth, m_ImageHeight));
 
         ImGui::End();
@@ -211,17 +271,17 @@ namespace Burst
 
     void Application::RenderCallback(float progressUNORM, Pixel* image)
     {
-        glBindTexture(GL_TEXTURE_2D, m_PreviewTexID);
+        // glBindTexture(GL_TEXTURE_2D, m_PreviewTexID);
+        
+        // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ImageWidth, m_ImageHeight, GL_RGB, GL_UNSIGNED_BYTE, image);
+        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ImageWidth, m_ImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<unsigned char*>(image));
+        // glCheckError();
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        m_ImageData = reinterpret_cast<unsigned char*>(image);
+        m_Progress = progressUNORM;
 
-#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
+        glfwPostEmptyEvent();
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ImageWidth, m_ImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+        spdlog::info("Progress: {}", progressUNORM);
     }
 }

@@ -23,7 +23,17 @@ namespace Burst
 
         Pixel& At(unsigned int row, unsigned int col);
         Pixel* GetRawData();
-        bool SaveAsPNG(std::string path);
+        bool SaveAsPNG(const std::string& path) const;
+
+        [[nodiscard]] int GetWidth() const
+        {
+            return m_Width;
+        }
+
+        [[nodiscard]] int GetHeight() const
+        {
+            return m_Height;
+        }
     };
     
 } // namespace Burst

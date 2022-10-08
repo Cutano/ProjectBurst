@@ -32,12 +32,18 @@ namespace Burst
         int m_ImageHeight{900};
         int m_ImageSettingWidth{1440};
         int m_ImageSettingHeight{900};
+        
+        float m_Progress{0.0f};
 
         bool m_ShowDemoWindow{true};
         bool m_ShowPreviewWindow{true};
         bool m_ShowSettingWindow{true};
 
+        bool m_IsGenerating{false};
+
         unsigned int m_PreviewTexID;
+
+        unsigned char* m_ImageData{nullptr};
 
         void DrawDockSpace();
         void DrawPreviewWindow();

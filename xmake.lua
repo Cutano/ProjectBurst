@@ -4,7 +4,7 @@ add_rules("mode.debug", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
 
 add_requires("imgui v1.88-docking", {configs = {glfw_opengl3 = true}})
-add_requires("opengl", "glm", "glfw", "glad", "stb", "spdlog")
+add_requires("opengl", "glm", "glfw", "glad", "stb", "spdlog", "thread-pool")
 
 target("BurstLib")
     set_kind("static")
@@ -12,7 +12,7 @@ target("BurstLib")
     add_files("src/BurstLib/**.cpp")
     add_headerfiles("src/BurstLib/**.h")
     add_includedirs("src/BurstLib")
-    add_packages("imgui", "opengl", "glm", "glfw", "glad", "stb", "spdlog")
+    add_packages("imgui", "opengl", "glm", "glfw", "glad", "stb", "spdlog", "thread-pool")
 
 target("DemoApp")
     set_kind("binary")
