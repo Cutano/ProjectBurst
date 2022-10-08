@@ -2,5 +2,11 @@
 
 namespace Burst
 {
+    Scene::Scene()
+    {
+    }
 
+    Scene::~Scene()
+    {
+    }
 }
