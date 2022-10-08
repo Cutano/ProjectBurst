@@ -163,7 +163,9 @@ namespace Burst
             {
                 if (ImGui::MenuItem("Generate", "Ctrl+G"))
                 {
-                    m_Renderer->Render(m_ImageWidth, m_ImageHeight, *m_Scene, [this](float prog, void* img) { RenderCallback(prog, img); });
+                    m_ImageWidth = m_ImageSettingWidth;
+                    m_ImageHeight = m_ImageSettingHeight;
+                    m_Renderer->Render(m_ImageSettingWidth, m_ImageSettingHeight, *m_Scene, [this](float prog, Pixel* img) { RenderCallback(prog, img); });
                 }
 
                 if (ImGui::MenuItem("Save", "Ctrl+S"))
@@ -202,12 +204,12 @@ namespace Burst
     {
         ImGuiWindowFlags windowFlags = 0;
         ImGui::Begin("Setting", &m_ShowSettingWindow, windowFlags);
-        ImGui::DragInt("Image Width", &m_ImageWidth, 1.0f, 100, 1e5);
-        ImGui::DragInt("Image Height", &m_ImageHeight, 1.0f, 100, 1e5);
+        ImGui::DragInt("Image Width", &m_ImageSettingWidth, 1.0f, 100, 1e5);
+        ImGui::DragInt("Image Height", &m_ImageSettingHeight, 1.0f, 100, 1e5);
         ImGui::End();
     }
 
-    void Application::RenderCallback(float progressUNORM, void* image)
+    void Application::RenderCallback(float progressUNORM, Pixel* image)
     {
         glBindTexture(GL_TEXTURE_2D, m_PreviewTexID);
 

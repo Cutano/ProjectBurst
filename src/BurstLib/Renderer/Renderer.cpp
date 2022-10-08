@@ -14,7 +14,7 @@ namespace Burst
 
     }
 
-    void Renderer::Render(int width, int height, Scene &scene, std::function<void(float, void*)> callback)
+    void Renderer::Render(int width, int height, Scene &scene, std::function<void(float, Pixel*)> callback)
     {
         Image img(width, height);
 

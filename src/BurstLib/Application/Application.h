@@ -8,6 +8,7 @@ struct GLFWwindow;
 namespace Burst
 {
     class Scene;
+    class Pixel;
     class Renderer;
 
     class Application
@@ -19,8 +20,8 @@ namespace Burst
         void Run();
 
     protected:
-        virtual void Init(){};
-        virtual void Shutdown(){};
+        virtual void Init() {}
+        virtual void Shutdown() {}
 
         std::shared_ptr<Scene> m_Scene;
         std::shared_ptr<Renderer> m_Renderer;
@@ -29,6 +30,8 @@ namespace Burst
     private:
         int m_ImageWidth{1440};
         int m_ImageHeight{900};
+        int m_ImageSettingWidth{1440};
+        int m_ImageSettingHeight{900};
 
         bool m_ShowDemoWindow{true};
         bool m_ShowPreviewWindow{true};
@@ -40,6 +43,6 @@ namespace Burst
         void DrawPreviewWindow();
         void DrawSettingWindow();
 
-        void RenderCallback(float progressUNORM, void* image);
+        void RenderCallback(float progressUNORM, Pixel* image);
     };
 }

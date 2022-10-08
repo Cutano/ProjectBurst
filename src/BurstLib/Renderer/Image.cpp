@@ -12,11 +12,12 @@ namespace Burst
     Image::Image(int width, int height) : m_Width(width), m_Height(height)
     {
         m_Data = new Pixel[width * height];
+        memset(m_Data, 0xFF, width * height * 3);
     }
 
     Image::~Image()
     {
-        delete m_Data;
+        delete[] m_Data;
     }
 
     Pixel& Image::At(unsigned int row, unsigned int col)

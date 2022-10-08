@@ -7,6 +7,7 @@
 namespace Burst
 {
     class Scene;
+    class Pixel;
 
     class Renderer
     {
@@ -16,6 +17,6 @@ namespace Burst
         Renderer();
         ~Renderer();
 
-        void Render(int width, int height, Scene& scene, std::function<void(float, void*)> callback);
+        void Render(int width, int height, Scene& scene, std::function<void(float, Pixel*)> callback);
     };
 } // namespace Burst
