@@ -7,12 +7,12 @@ namespace Burst
     class camera
     {
     public:
-        camera() : camera(point3(0, 0, -1), point3(0, 0, 0), vec3(0, 1, 0), 40, 1, 0, 10) {}
+        camera() : camera(glm::vec3(0, 0, -1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), 40, 1, 0, 10) {}
 
         camera(
-            point3 lookfrom,
-            point3 lookat,
-            vec3 vup,
+            glm::vec3 lookfrom,
+            glm::vec3 lookat,
+            glm::vec3 vup,
             double vfov, // vertical field-of-view in degrees
             double aspect_ratio,
             double aperture,
@@ -25,8 +25,8 @@ namespace Burst
             auto viewport_height = 2.0 * h;
             auto viewport_width = aspect_ratio * viewport_height;
 
-            w = unit_vector(lookfrom - lookat);
-            u = unit_vector(cross(vup, w));
+            w = glm::normalize(lookfrom - lookat);
+            u = glm::normalize(cross(vup, w));
             v = cross(w, u);
 
             origin = lookfrom;
@@ -41,8 +41,8 @@ namespace Burst
 
         ray get_ray(double s, double t) const
         {
-            vec3 rd = lens_radius * random_in_unit_disk();
-            vec3 offset = u * rd.x() + v * rd.y();
+            glm::vec3 rd = lens_radius * glm::vec3(glm::diskRand(1), 0);
+            glm::vec3 offset = u * rd.x() + v * rd.y();
             return ray(
                 origin + offset,
                 lower_left_corner + s * horizontal + t * vertical - origin - offset,
@@ -50,11 +50,11 @@ namespace Burst
         }
 
     private:
-        point3 origin;
-        point3 lower_left_corner;
-        vec3 horizontal;
-        vec3 vertical;
-        vec3 u, v, w;
+        glm::vec3 origin;
+        glm::vec3 lower_left_corner;
+        glm::vec3 horizontal;
+        glm::vec3 vertical;
+        glm::vec3 u, v, w;
         double lens_radius;
         double time0, time1; // shutter open/close times
     };
