@@ -130,8 +130,8 @@ namespace Burst
             {
                 glBindTexture(GL_TEXTURE_2D, m_PreviewTexID);
         
-                glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ImageWidth, m_ImageHeight, GL_RGB, GL_UNSIGNED_BYTE, m_ImageData);
-                // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ImageWidth, m_ImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, m_ImageData);
+                // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ImageWidth, m_ImageHeight, GL_RGB, GL_UNSIGNED_BYTE, m_ImageData);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_ImageWidth, m_ImageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, m_ImageData);
                 glCheckError();
             
                 glBindTexture(GL_TEXTURE_2D, 0);
@@ -213,6 +213,7 @@ namespace Burst
                 {
                     m_ImageWidth = m_ImageSettingWidth;
                     m_ImageHeight = m_ImageSettingHeight;
+                    m_ImageData = nullptr;
                     m_Progress = 0;
                     m_IsGenerating = true;
 

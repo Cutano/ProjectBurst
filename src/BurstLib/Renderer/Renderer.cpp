@@ -19,6 +19,7 @@ namespace Burst
     BS::multi_future<void> Renderer::Render(int width, int height, const std::shared_ptr<Scene>& scene, const std::function<void(float, Pixel*)>& callback)
     {
         s_DoneCnt = 0;
+        m_Image.reset();
         m_Image = std::make_shared<Image>(width, height);
         BS::multi_future<void> multi_future;
 
@@ -85,7 +86,7 @@ namespace Burst
             }
 
             ++s_DoneCnt;
-            context.callback(static_cast<float>(s_DoneCnt) / static_cast<float>(context.image->GetHeight()), context.image->GetRawData());
+            context.callback(static_cast<float>(s_DoneCnt) / static_cast<float>(height), context.image->GetRawData());
         }
     }
 
