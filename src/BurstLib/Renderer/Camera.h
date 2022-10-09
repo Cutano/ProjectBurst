@@ -41,12 +41,13 @@ namespace Burst
 
         ray get_ray(double s, double t) const
         {
-            glm::vec3 rd = lens_radius * glm::vec3(glm::diskRand(1), 0);
-            glm::vec3 offset = u * rd.x() + v * rd.y();
-            return ray(
+            glm::vec3 rd = lens_radius * glm::vec3(glm::diskRand(1.0f), 0);
+            glm::vec3 offset = u * rd.x + v * rd.y;
+            return {
                 origin + offset,
                 lower_left_corner + s * horizontal + t * vertical - origin - offset,
-                random_double(time0, time1));
+                random_double(time0, time1)
+            };
         }
 
     private:

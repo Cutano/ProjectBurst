@@ -45,9 +45,9 @@ namespace Burst
             return;
         }
         
-        m_ThreadPool->submit([this, path]
+        auto future = m_ThreadPool->submit([this, path]
         {
-            m_Image->SaveAsPNG(path);
+            return m_Image->SaveAsPNG(path);
         });
     }
 
@@ -55,18 +55,38 @@ namespace Burst
     {
         const int rowBegin = context.rowBeginIndex;
         const int rowEnd = context.rowPostEndIndex;
+        
+        const auto& scene = context.scene;
+        const auto& cam = scene->GetCamera();
+        const auto& hitCallback = scene->GetOnHitCallback();
+        const auto& world = scene->GetHittableList();
+        
+        const auto width = context.image->GetWidth();
+        const auto height = context.image->GetHeight();
+
+        const int max_depth = 50;
+        const int spp = 50;
+        
         for (int row = rowBegin; row < rowEnd; ++row)
         {
-            for (int col = 0; col < context.image->GetWidth(); ++col)
+            for (int col = 0; col < width; ++col)
             {
-                context.image->At(row, col) = {static_cast<unsigned char>(row / 4), static_cast<unsigned char>(0x00), static_cast<unsigned char>(0x00)};
+                glm::vec3 color{0};
+                for (int i = 0; i < spp; ++i)
+                {
+                    auto u = (col + random_double()) / (width - 1);
+                    auto v = 1.0 - (row + random_double()) / (height - 1);
+                    ray r = cam.get_ray(u, v);
+                    color += hitCallback(r, glm::vec3{0}, world, nullptr, max_depth);
+                }
+                color /= spp;
+                const auto& color255 = glm::packUnorm<unsigned char>(color);
+                context.image->At(row, col) = {color255.r, color255.g, color255.b};
             }
 
             ++s_DoneCnt;
             context.callback(static_cast<float>(s_DoneCnt) / static_cast<float>(context.image->GetHeight()), context.image->GetRawData());
         }
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
 } // namespace Burst

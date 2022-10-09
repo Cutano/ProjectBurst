@@ -72,7 +72,7 @@ namespace Burst
         {
             glm::vec3 reflected = reflect(glm::normalize(r_in.direction()), rec.normal);
             srec.specular_ray =
-                ray(rec.p, reflected + fuzz * static_cast<glm::vec3>(glm::ballRand(1)), r_in.time());
+                ray(rec.p, reflected + fuzz * glm::ballRand(1.0f), r_in.time());
             srec.attenuation = albedo;
             srec.is_specular = true;
             srec.pdf_ptr = nullptr;

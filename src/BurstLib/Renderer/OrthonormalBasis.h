@@ -22,7 +22,7 @@ namespace Burst
 
         glm::vec3 local(const glm::vec3 &a) const
         {
-            return a.x() * u() + a.y() * v() + a.z() * w();
+            return a.x * u() + a.y * v() + a.z * w();
         }
 
         void build_from_w(const glm::vec3 &);
@@ -34,7 +34,7 @@ namespace Burst
     void onb::build_from_w(const glm::vec3 &n)
     {
         axis[2] = glm::normalize(n);
-        glm::vec3 a = (fabs(w().x()) > 0.9) ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0);
+        glm::vec3 a = (fabs(w().x) > 0.9) ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0);
         axis[1] = glm::normalize(glm::cross(w(), a));
         axis[0] = glm::cross(w(), v());
     }

@@ -20,7 +20,7 @@ target("DemoApp")
     add_deps("BurstLib")
     add_includedirs("src/BurstLib/include")
     add_files("src/DemoApp/main.cpp")
-    add_packages("glm")
+    add_packages("glm", "stb")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

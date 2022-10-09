@@ -17,7 +17,7 @@ namespace Burst
         double v;
         bool front_face;
 
-        inline void set_face_normal(const ray &r, const glm::vec3 &outward_normal)
+        void set_face_normal(const ray &r, const glm::vec3 &outward_normal)
         {
             front_face = dot(r.direction(), outward_normal) < 0;
             normal = front_face ? outward_normal : -outward_normal;
@@ -27,6 +27,7 @@ namespace Burst
     class hittable
     {
     public:
+        virtual ~hittable() = default;
         virtual bool hit(const ray &r, double t_min, double t_max, hit_record &rec) const = 0;
         virtual bool bounding_box(double time0, double time1, aabb &output_box) const = 0;
 
@@ -46,7 +47,7 @@ namespace Burst
     public:
         flip_face(shared_ptr<hittable> p) : ptr(p) {}
 
-        virtual bool hit(
+        bool hit(
             const ray &r, double t_min, double t_max, hit_record &rec) const override
         {
 
@@ -57,7 +58,7 @@ namespace Burst
             return true;
         }
 
-        virtual bool bounding_box(double time0, double time1, aabb &output_box) const override
+        bool bounding_box(double time0, double time1, aabb &output_box) const override
         {
             return ptr->bounding_box(time0, time1, output_box);
         }
@@ -72,17 +73,17 @@ namespace Burst
         translate(shared_ptr<hittable> p, const glm::vec3 &displacement)
             : ptr(p), offset(displacement) {}
 
-        virtual bool hit(
+        bool hit(
             const ray &r, double t_min, double t_max, hit_record &rec) const override;
 
-        virtual bool bounding_box(double time0, double time1, aabb &output_box) const override;
+        bool bounding_box(double time0, double time1, aabb &output_box) const override;
 
     public:
         shared_ptr<hittable> ptr;
         glm::vec3 offset;
     };
 
-    bool translate::hit(const ray &r, double t_min, double t_max, hit_record &rec) const
+    inline bool translate::hit(const ray &r, double t_min, double t_max, hit_record &rec) const
     {
         ray moved_r(r.origin() - offset, r.direction(), r.time());
         if (!ptr->hit(moved_r, t_min, t_max, rec))
@@ -94,7 +95,7 @@ namespace Burst
         return true;
     }
 
-    bool translate::bounding_box(double time0, double time1, aabb &output_box) const
+    inline bool translate::bounding_box(double time0, double time1, aabb &output_box) const
     {
         if (!ptr->bounding_box(time0, time1, output_box))
             return false;
@@ -111,10 +112,10 @@ namespace Burst
     public:
         rotate_y(shared_ptr<hittable> p, double angle);
 
-        virtual bool hit(
+        bool hit(
             const ray &r, double t_min, double t_max, hit_record &rec) const override;
 
-        virtual bool bounding_box(double time0, double time1, aabb &output_box) const override
+        bool bounding_box(double time0, double time1, aabb &output_box) const override
         {
             output_box = bbox;
             return hasbox;
@@ -128,7 +129,7 @@ namespace Burst
         aabb bbox;
     };
 
-    rotate_y::rotate_y(shared_ptr<hittable> p, double angle) : ptr(p)
+    inline rotate_y::rotate_y(shared_ptr<hittable> p, double angle) : ptr(p)
     {
         auto radians = degrees_to_radians(angle);
         sin_theta = sin(radians);
@@ -144,9 +145,9 @@ namespace Burst
             {
                 for (int k = 0; k < 2; k++)
                 {
-                    auto x = i * bbox.max().x() + (1 - i) * bbox.min().x();
-                    auto y = j * bbox.max().y() + (1 - j) * bbox.min().y();
-                    auto z = k * bbox.max().z() + (1 - k) * bbox.min().z();
+                    auto x = i * bbox.max().x + (1 - i) * bbox.min().x;
+                    auto y = j * bbox.max().y + (1 - j) * bbox.min().y;
+                    auto z = k * bbox.max().z + (1 - k) * bbox.min().z;
 
                     auto newx = cos_theta * x + sin_theta * z;
                     auto newz = -sin_theta * x + cos_theta * z;
@@ -165,7 +166,7 @@ namespace Burst
         bbox = aabb(min, max);
     }
 
-    bool rotate_y::hit(const ray &r, double t_min, double t_max, hit_record &rec) const
+    inline bool rotate_y::hit(const ray &r, double t_min, double t_max, hit_record &rec) const
     {
         auto origin = r.origin();
         auto direction = r.direction();

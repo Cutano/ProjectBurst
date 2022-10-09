@@ -35,17 +35,17 @@ namespace Burst
 
         double area() const
         {
-            auto a = maximum.x() - minimum.x();
-            auto b = maximum.y() - minimum.y();
-            auto c = maximum.z() - minimum.z();
-            return 2 * (a * b + b * c + c * a);
+            auto a = maximum.x - minimum.x;
+            auto b = maximum.y - minimum.y;
+            auto c = maximum.z - minimum.z;
+            return 2.0 * (a * b + b * c + c * a);
         }
 
         int longest_axis() const
         {
-            auto a = maximum.x() - minimum.x();
-            auto b = maximum.y() - minimum.y();
-            auto c = maximum.z() - minimum.z();
+            auto a = maximum.x - minimum.x;
+            auto b = maximum.y - minimum.y;
+            auto c = maximum.z - minimum.z;
             if (a > b && a > c)
                 return 0;
             else if (b > c)
@@ -59,15 +59,15 @@ namespace Burst
         glm::vec3 maximum;
     };
 
-    aabb surrounding_box(aabb box0, aabb box1)
+    inline aabb surrounding_box(aabb box0, aabb box1)
     {
-        glm::vec3 small(fmin(box0.min().x(), box1.min().x()),
-                        fmin(box0.min().y(), box1.min().y()),
-                        fmin(box0.min().z(), box1.min().z()));
+        glm::vec3 small(fmin(box0.min().x, box1.min().x),
+                        fmin(box0.min().y, box1.min().y),
+                        fmin(box0.min().z, box1.min().z));
 
-        glm::vec3 big(fmax(box0.max().x(), box1.max().x()),
-                      fmax(box0.max().y(), box1.max().y()),
-                      fmax(box0.max().z(), box1.max().z()));
+        glm::vec3 big(fmax(box0.max().x, box1.max().x),
+                      fmax(box0.max().y, box1.max().y),
+                      fmax(box0.max().z, box1.max().z));
 
         return aabb(small, big);
     }
